@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=yIwhlrIIurz8Msjz1Slf2RsoivNOEAGN">
+    </script>
+    <style scoped>
+        #allmap {
+            width: 700px;
+            height: 250px;
+            font-family: "微软雅黑";
+            border: 3px solid lightyellow;
+        }
+
+        /*去掉百度地图的logo*/
+        .BMap_cpyCtrl {
+            display: none;
+        }
+        .anchorBL {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body>
+<div id="all">
+    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="新增地址">
+            <el-input type="text" id="suggestId" name="address_detail" placeholder="地址" v-model="address_detail"
+                      class="input_style"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="handleAddress()">添加</el-button>
+        </el-form-item>
+    </el-form>
+
+    <div id="allmap"></div>
+</div>
+<div id="app"></div>
+</body>
+
+<script>
+    const vue = new Vue({
+        el: '#all',
+        data() {
+            return {
+                address_detail: null,                        //详细地址
+                userlocation: { lng: "", lat: "" },
+            }
+        },
+        mounted() {
+            var map1 = new BMap.Map("app");                  // 创建地图实例
+            map1.centerAndZoom("广州市", 15);                  // 初始化地图，设置中心点坐标和地图级别
+            map1.enableScrollWheelZoom();                    //启动鼠标滚轮缩放地图
+
+            this.$nextTick(function () {
+                var th = this
+                // 创建Map实例
+                var map = new BMap.Map("allmap");
+                // 初始化地图,设置中心点坐标，
+                var point = new BMap.Point(121.160724, 31.173277); // 创建点坐标，汉得公司的经纬度坐标
+                map.centerAndZoom(point, 15);
+                map.enableScrollWheelZoom();
+                map.setMapStyle({style:'light'});
+
+                var ac = new BMap.Autocomplete(              //建立一个自动完成的对象
+                    {
+                        "input": "suggestId"
+                        , "location": map
+                    })
+                var myValue
+                ac.addEventListener("onconfirm", function (e) {    //鼠标点击下拉列表后的事件
+                    var _value = e.item.value;
+                    myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+                    this.address_detail = myValue
+                    setPlace();
+                });
+
+                function setPlace() {
+                    map.clearOverlays();    //清除地图上所有覆盖物
+                    function myFun() {
+                        th.userlocation = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+                        map.centerAndZoom(th.userlocation, 18);
+                        map.addOverlay(new BMap.Marker(th.userlocation));    //添加标注
+                    }
+
+                    var local = new BMap.LocalSearch(map, { //智能搜索
+                        onSearchComplete: myFun
+                    });
+                    local.search(myValue);
+
+                    //测试输出坐标（指的是输入框最后确定地点的经纬度）
+                    map.addEventListener("click", function (e) {
+                        //经度
+                        console.log(th.userlocation.lng);
+                        //维度
+                        console.log(th.userlocation.lat);
+                    })
+                }
+            })
+        },
+
+        methods:{
+
+            handleAddress(){
+                this.$confirm("你确定要添加当前该地址为公司新地址吗？","提示",{
+                    type:'warning'
+                }).then(()=>{                   // 点击确认按钮  发送ajax请求
+                    var param = {
+                        companyAddress:this.address_detail,
+                        longitude:this.userlocation.lng,
+                        latitude:this.userlocation.lat
+                    };
+
+                    // 发送一个ajax请求，添加一个新地址
+                    axios.post("/map/add.do", param).then((res)=>{
+                        if(res.data.flag){
+                            this.$message({
+                                type:'success',
+                                message:res.data.message
+                            });
+
+                        }else{
+                            this.$message.error(res.data.message);
+                        }
+
+                    });
+                }).catch(()=>{
+                    this.$message({
+                        type:'info',
+                        message:'操作已取消'
+                    });
+                })
+            }
+        }
+    });
+</script>
+
+</html>

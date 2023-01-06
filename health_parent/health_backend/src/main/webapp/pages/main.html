@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!-- import CSS -->
+	<link rel="stylesheet" href="../plugins/elementui/index.css">
+	<!-- import Vue before Element -->
+	<script src="../js/vue.js"></script>
+	<!-- import JavaScript -->
+
+	<script src="../js/axios-0.18.0.js"></script>
+	<script src="../plugins/elementui/index.js"></script>
+	<link rel="stylesheet" href="../css/login.css" />
+
+	<link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+	<script src="../js/qs.js"></script>
+
+
+</head>
+<body>
+  <div id="app">
+	<el-container>
+	  <el-header>
+		  <div class="left-menu">
+			   <img src="../css/head.jpg" />
+		  </div>
+		  
+		  <el-dropdown class="right-menu"  >
+		    <el-button type="primary" icon="el-icon-circle-plus">
+				个人中心
+		    </el-button>
+		    <el-dropdown-menu slot="dropdown">
+				<el-dropdown-item>{{username}}</el-dropdown-item>
+				<el-dropdown-item v-if="loginVisible"><a href="login.html">登录</a></el-dropdown-item>
+				<el-dropdown-item v-if="!loginVisible">
+					<el-button type="text" @click="exit()">退出</el-button>
+				</el-dropdown-item>
+				<el-dropdown-item>帮助</el-dropdown-item>
+		    </el-dropdown-menu>
+		  </el-dropdown>
+	  </el-header>
+	  <el-container style="min-height: 768px; border: 1px solid #eeeeee">
+	    <el-aside width="200px" style="background-color:  rgb(238, 241, 246)">
+	      <el-menu>
+			<el-submenu v-for="menu in menuList" :index="menu.path">
+				<template slot="title" v-for="menu"> 
+					<i class="fa" :class="menu.icon"></i>
+					{{menu.title}}
+				</template>
+				<template v-for="child in menu.children">
+					<el-menu-item :index="child.path">
+						<a :href="child.linkUrl" target="right">
+						{{child.title}}
+						</a>
+					</el-menu-item>
+				</template>
+			</el-submenu>
+	      </el-menu>
+	    </el-aside>
+	    
+		<el-main>
+			<iframe name="right" class="el-main" src="map.html" width="100%" height="100%" frameborder="0"></iframe>
+		</el-main>
+
+
+
+
+
+	  </el-container>
+
+	</el-container>
+  </div>
+</body>
+
+
+
+
+  <script>
+
+    new Vue({
+	  el: '#app',
+	  data:{
+	  	username:'',
+		loginVisible:true,
+		  menuList:[
+					  {
+						  "title":"工作台",
+						  "icon":"el-icon-message",
+						  "path":"/1",
+						  "children":[
+							  {
+								  "path":"1-1",
+								  "title":"地图管理",
+								  "linkUrl":"map.html",
+								  "chilren":[]
+							  }
+						  ]
+					  },
+					  {
+						  "title":"会员管理",
+						  "icon":"el-icon-menu",
+						  "path":"/2",
+						  "children":[
+							  {
+								  "path":"2-1",
+								  "title":"会员档案",
+								  "linkUrl":"1",
+								  "chilren":[]
+							  },
+							  {
+								  "path":"2-2",
+								  "title":"预约计划",
+								  "linkUrl":"1",
+								  "chilren":[]
+							  },
+							  {
+								  "path":"2-3",
+								  "title":"用户体验",
+								  "linkUrl":"1",
+								  "chilren":[]
+							  }
+						  ]
+					  },
+					  {
+						  "title":"预约管理",
+						  "icon":"el-icon-message",
+						  "path":"/3",
+						  "children":[
+							  {
+								  "path":"3-1",
+								  "title":"预约列表",
+								  "linkUrl":"orderManagement.html",
+								  "chilren":[]
+							  },
+							  {
+								  "path":"3-2",
+								  "title":"预约设置",
+								  "linkUrl":"orderSetting.html",
+								  "chilren":[]
+							  },
+							  {
+								  "path":"3-3",
+								  "title":"套餐管理",
+								  "linkUrl":"setmeal.html",
+								  "chilren":[]
+							  },
+							  {
+								  "path":"3-4",
+								  "title":"检查组管理",
+								  "linkUrl":"checkGroup.html",
+								  "chilren":[],
+
+							  },
+							  {
+								  "path":"3-5",
+								  "title":"检查项管理",
+								  "linkUrl":"checkItem.html",
+								  "chilren":[],
+
+							  }
+						  ]
+					  },
+					  {
+						  "title": "统计分析",     //菜单项名称
+						  "path":"/5",     //菜单项所对应的路由路径
+						  "icon":"fa-heartbeat",
+						  "children":[//是否有子菜单，若没有，则为[]
+							  {
+								  "path": "5-1",
+								  "title": "会员数量统计",
+								  "linkUrl":"report_member.html",
+								  "children":[]
+							  },
+							  {
+								  "path": "5-2",
+								  "title": "套餐预约占比统计",
+								  "linkUrl":"report_setmeal.html",
+								  "children":[]
+							  },
+							  {
+								  "path": "5-3",
+								  "title": "运营数据统计",
+								  "linkUrl":"report_business.html",
+								  "children":[]
+							  }
+						  ]
+					  },
+					  {
+						  "path": "/6",     //菜单项所对应的路由路径
+						  "title": "权限管理",     //菜单项名称
+						  "icon":"fa-magnet",
+						  "children":[//是否有子菜单，若没有，则为[]
+							  {
+								  "path": "6-1",
+								  "title": "用户管理",
+								  "linkUrl":"security_user.html",
+								  "children":[]
+							  },
+							  {
+								  "path": "6-2",
+								  "title": "角色管理",
+								  "linkUrl":"security_role.html",
+								  "children":[]
+							  },
+							  {
+								  "path": "6-3",
+								  "title": "权限管理",
+								  "linkUrl":"security_permission.html",
+								  "children":[]
+							  }
+						  ]
+					  }
+
+
+
+				  ]
+		  },
+		created(){
+	  		this.findUserIsLogin();
+		},
+		methods:{
+			findUserIsLogin(){
+				axios.get("/user/getUserName.do").then((res)=>{
+					if (res.data.flag){
+						this.username=res.data.data;
+						this.loginVisible=false;
+					}
+				})
+			},
+
+			exit(){
+				axios.post("/exit.do").then(()=>{
+					window.location.href="login.html"
+				})
+			}
+		}
+    })
+	
+  </script>
+  
+  
+  
+</html>

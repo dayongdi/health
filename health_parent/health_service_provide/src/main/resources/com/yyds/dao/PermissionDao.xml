@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyds.dao.PermissionDao">
+<!--    // 根据角色查询相关的权限-->
+<!--    public Set<Permission> findByRoleId(Integer roleId);-->
+    <select id="findByRoleId" parameterType="int" resultType="com.javamenc.pojo.Permission">
+        select p.*
+        from t_permission p ,t_role_permission rp
+        where   p.id = rp.permission_id and rp.role_id = #{roleId}
+    </select>
+
+<!--    // 利用条件查询数据-->
+<!--    public Page<Permission> findByCondition(String queryString);-->
+    <select id="findByCondition" parameterType="string" resultType="com.javamenc.pojo.Permission">
+        select * from t_permission
+        <if test="value != null and value.length > 0">
+            where name like "%"#{name}"%"
+        </if>
+    </select>
+
+<!--    // 添加一个新权限-->
+<!--    public void add(Permission permission);-->
+    <insert id="add" parameterType="com.javamenc.pojo.Permission">
+        insert  into t_permission(name,keyword,description)
+        values (#{name},#{keyword},#{description})
+    </insert>
+
+<!--    // 查询所有的权限数据-->
+<!--    public List<Permission> findAll();-->
+    <select id="findAll" resultType="com.javamenc.pojo.Permission">
+        select * from t_permission
+    </select>
+</mapper>

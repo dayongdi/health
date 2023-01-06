@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyds.dao.OrderSettingListDao">
+
+    <select id="findByCondition" parameterType="string" resultType="map">
+        SELECT o.id, o.orderDate, a.companyAddress 'orderAddress', m.name, m.phoneNumber telephone, o.orderType, o.orderStatus
+        FROM t_member m, t_order o, t_address a
+        WHERE m.id = o.memberId AND a.id = o.addressId
+        <if test="value != null and value.length > 0">
+            and (m.fileNumber = #{value} or m.name like "%"#{value}"%" or m.phoneNumber =#{value})
+        </if>
+    </select>
+
+    <update id="updateStatusByOrderId" parameterType="int">
+        UPDATE t_order SET orderStatus = '已到诊' WHERE id = #{id}
+    </update>
+
+    <select id="findByOrderId" parameterType="int" resultType="com.javamenc.pojo.Order">
+        select *from t_order where id=#{id}
+    </select>
+
+    <delete id="deleteByOrderId" parameterType="int">
+        DELETE FROM t_order WHERE id = #{id}
+    </delete>
+
+</mapper>

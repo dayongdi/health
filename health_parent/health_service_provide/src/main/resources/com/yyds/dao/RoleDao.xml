@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyds.dao.RoleDao">
+
+<!--    // 根据用户id 查询所拥有的角色-->
+<!--    public Set<Role> findByUserId(Integer userId);-->
+    <select id="findByUserId" parameterType="int" resultType="com.javamenc.pojo.Role">
+        select * from t_role where id=#{userId}
+    </select>
+
+
+<!--    // 查询所有的角色数据-->
+<!--    public List<Role> findAll();-->
+    <select id="findAll" resultType="com.javamenc.pojo.Role">
+        select * from t_role
+    </select>
+
+
+<!--    // 根据角色id 查询包含的权限ids-->
+<!--    public List<Integer> findPermissionsByRoleId(Integer roleId);-->
+    <select id="findPermissionsByRoleId" parameterType="int" resultType="int">
+         select permission_id from t_role_permission where role_id = #{id}
+    </select>
+
+
+<!--    // 删除角色所对应的权限关系-->
+<!--    public void deleteAssocication(Integer roleId);-->
+    <delete id="deleteAssocication" parameterType="int">
+        delete from t_role_permission where role_id=#{roleId}
+    </delete>
+
+
+<!--    // 重新建立角色与权限的对应关系-->
+<!--    public void setPermissionAndRole(Map map);-->
+    <insert id="setPermissionAndRole">
+        insert into t_role_permission(role_id,permission_id)
+        values (#{roleId},#{permissionId})
+    </insert>
+
+
+
+</mapper>

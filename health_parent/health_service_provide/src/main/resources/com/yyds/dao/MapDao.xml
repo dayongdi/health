@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyds.dao.MapDao">
+
+<!--    // 条件查询-->
+    <select id="findByCondition" parameterType="String" resultType="com.javamenc.pojo.Address">
+        select *from t_address
+        <if test="value != null and value.length > 0">
+            WHERE companyAddress = #{value}
+        </if>
+    </select>
+
+<!--    // 删除一个地址-->
+    <delete id="delete" parameterType="int">
+        delete from t_address where id = #{id}
+    </delete>
+
+
+<!--    // 添加一个新地址-->
+    <insert id="add" parameterType="com.javamenc.pojo.Address">
+        insert into t_address(companyAddress,longitude,latitude)
+        values(#{companyAddress},#{longitude},#{latitude})
+    </insert>
+
+<!--    // 获取公司地址的详细信息-->
+    <select id="findAddressAll" resultType="com.javamenc.pojo.Address">
+        select * from t_address
+    </select>
+
+<!--    // 获取所有地址的名称-->
+    <select id="getAddressNames" resultType="string">
+        select companyAddress from t_address
+    </select>
+
+<!--    // 根据公司地址名称查询个数-->
+    <select id="findCountByAddressName" parameterType="string" resultType="int">
+        select COUNT(id) from t_address where companyAddress like "%"#{companyAddress}"%"
+    </select>
+</mapper>

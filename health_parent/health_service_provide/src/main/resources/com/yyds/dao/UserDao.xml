@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyds.dao.UserDao">
+
+
+<!--    //根据用户名和密码获取指定的账号-->
+<!--    public User selectUserByUsernameAndPassword(Map<String,String> map);-->
+    <select id="selectUserByUsernameAndPassword" parameterType="map" resultType="com.javamenc.pojo.User">
+        select *from t_user where username=#{username} and password=#{password}
+    </select>
+
+<!--    // 根据用户名查询用户信息-->
+    <select id="findByUsername" parameterType="String" resultType="com.javamenc.pojo.User">
+        select *from t_user where username=#{username}
+    </select>
+
+<!--    // 条件查询-->
+    <select id="findByCondition" parameterType="string" resultType="com.javamenc.pojo.User">
+        select * from t_user
+        <if test="value != null and value.length > 0">
+            where username = #{value} or telephone = #{value}
+        </if>
+    </select>
+
+<!--    // 根据用户id 查询关联的角色-->
+    <select id="findRolesByUserId" parameterType="int" resultType="int">
+        SELECT role_id FROM t_user_role WHERE user_id = #{id}
+    </select>
+
+<!--    // 删除用户所对应的角色-->
+    <delete id="deleteAssocication" parameterType="int">
+        delete from t_user_role where user_id = #{userId}
+    </delete>
+
+<!--    // 添加用户所对应的角色-->
+<!--    public void setUserAndRole(Map<String, Integer> map);-->
+    <insert id="setUserAndRole" parameterType="map">
+        insert into t_user_role(user_id,role_id)
+        VALUES
+        (#{userId},#{roleId})
+    </insert>
+
+<!--    // 根据用户名查找用户的个数-->
+    <select id="findUserCountByUsername" parameterType="string" resultType="int">
+        select count(*) from t_user where username = #{username}
+    </select>
+
+<!--    // 添加用户-->
+    <insert id="add" parameterType="com.javamenc.pojo.User">
+        insert into t_user(username,password,birthday,gender,remark,station,telephone)
+        values
+        (#{username},#{password},#{birthday},#{gender},#{remark},#{station},#{telephone})
+    </insert>
+
+
+</mapper>

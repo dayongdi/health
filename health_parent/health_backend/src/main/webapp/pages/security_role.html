@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>角色管理</title>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+
+    <style>
+        .datatable {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+
+        .datatable td, .datatable th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>权限管理
+            <small>角色管理</small>
+        </h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>权限管理</el-breadcrumb-item>
+            <el-breadcrumb-item>角色管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="name" label="角色名" align="center"></el-table-column>
+                <el-table-column prop="keyword" label="角色关键词" align="center"></el-table-column>
+                <el-table-column prop="description" label="角色描述" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleAdd(scope.row)">添加权限</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!-- 编辑标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="编辑检查组" :visible.sync="dialogFormVisible4Edit" v-if="dialogFormVisible4Edit">
+                    <div class="checkScrol">
+                        <table class="datatable">
+                            <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>权限名</th>
+                                <th>权限关键词</th>
+                                <th>权限描述</th>
+                                <th>选择</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(c, index) in tableData">
+                                <td><label :for="c.id">{{index + 1}}</label></td>
+                                <td><label :for="c.id">{{c.name}}</label></td>
+                                <td><label :for="c.id">{{c.keyword}}</label></td>
+                                <td><label :for="c.id">{{c.description}}</label></td>
+                                <td>
+                                    <input :id="c.id" v-model="permissionIds" type="checkbox" :value="c.id">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                        <el-button type="primary" @click="handleUpdate()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    const vue = new Vue({
+        el: '#app',
+        data: {
+            dataList: [],                   //列表数据
+            tableData: [],                  //所有的权限数据
+            permissionIds: [],              //新增和编辑表单中检查项对应的复选框，基于双向绑定可以进行回显和数据提交
+            dialogFormVisible4Edit: false,   //控制编辑窗口显示/隐藏
+            rId : 0
+        },
+        created() {
+            this.findPage();
+        },
+        methods: {
+            // 弹出添加权限窗口  回显权限数据
+            handleAdd(row) {
+                this.dialogFormVisible4Edit = true;
+                this.rId = row.id;
+                // 发送ajax请求查询所有的权限数据
+                axios.get("/permission/findAll.do").then((res) => {
+                    if (res.data.flag) {
+                        this.tableData = res.data.data;
+
+                        // 发送 ajax请求, 查找该角色拥有哪些权限
+                        axios.get("/role/findPermissionsByRoleId.do?roleId=" + row.id).then((res) =>{
+                            if(res.data.flag){
+                                this.permissionIds = res.data.data;
+                            }else{
+                                this.$message.error(res.data.message);
+                            }
+                        });
+
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                });
+            },
+
+            //查询数据
+            findPage() {
+                axios.get("/role/findAll.do").then((res) => {
+                    this.dataList = res.data.data;
+                });
+            },
+
+            // 更新角色所对应的权限
+            handleUpdate(){
+                axios.put("/role/updatePermissionAndRoleId.do?roleId="+this.rId, this.permissionIds).then((res) => {
+                    this.dialogFormVisible4Edit = false;
+
+                    if(res.data.flag){
+                        this.$message({
+                            type:'success',
+                            message:res.data.message
+                        });
+                    }else{
+                        this.$message.error(res.data.message);
+                    }
+                });
+            }
+        }
+    });
+</script>
+</html>

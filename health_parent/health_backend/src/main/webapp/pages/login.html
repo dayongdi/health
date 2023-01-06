@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <!-- import Vue before Element -->
+    <script src="../js/vue.js"></script>
+    <!-- import JavaScript -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/qs.js"></script>
+
+    <style>
+        body{
+            background-image: url("../img/bg.jpg");
+            background-repeat: repeat;
+        }
+
+        #contain{
+            width: 500px;
+            height: 350px;
+            background-image: url("../img/bg.jpg");
+            margin: auto;
+            margin-top: 200px;
+        }
+        .el-row{
+            margin-left:100px;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div id="contain" >
+            <h1 style="text-align: center;padding-top: 10px;">登录页面</h1>
+
+
+            <el-form id="form" :inline="true" :model="formData" class="demo-form-inline" >
+                <el-row>
+                    <el-form-item label="用户名" >
+                        <el-input v-model="formData.username"  name="username"  placeholder="用户名"></el-input>
+                    </el-form-item>
+                </el-row>
+
+                <el-row>
+                    <el-form-item label="密码">
+                        <el-input type="password" show-password placeholder="请输入密码"  name="password" v-model="formData.password"></el-input>
+                    </el-form-item>
+                </el-row>
+
+                <el-row>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">登录</el-button>
+                    </el-form-item>
+                </el-row>
+            </el-form>
+
+        </div>
+
+
+    </div>
+
+</body>
+
+
+    <script>
+        var vue=new Vue({
+
+            el:"#app",
+                data: {
+                  formData:{
+                      username:'',
+                      password:''
+                  }
+                },
+                methods: {
+                    onSubmit() {
+                        var qs=Qs;
+                        axios.post("/login.do",qs.stringify(this.formData)).then(()=>{
+                                window.location.href="main.html"
+                            }
+                        ).catch(()=>{
+                            this.$message.error("账号密码错误或该账号没有权限登录")
+                        })
+                    }
+                }
+
+            })
+    </script>
+
+</html>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyds.dao.SetMealDao">
+
+
+    <select id="findPage" parameterType="String" resultType="com.javamenc.pojo.Setmeal">
+        select *from t_setmeal
+        <if test="value != null and value.length>0">
+            where code=#{value} or name like "%"#{value}"%"
+        </if>
+    </select>
+
+    <insert id="add" parameterType="com.javamenc.pojo.Setmeal">
+        <selectKey order="AFTER" resultType="java.lang.Integer"  keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+
+        insert into t_setmeal(name,code,helpCode,sex,age,price,remark,attention,img)
+        VALUES
+        (#{name},#{code},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img})
+    </insert>
+
+    <update id="update" parameterType="com.javamenc.pojo.Setmeal" >
+        update t_setmeal
+        <set>
+            <if test="name != null">
+                name=#{name},
+            </if>
+            <if test="code != null">
+                code=#{code},
+            </if>
+            <if test="helpCode != null">
+                helpCode=#{helpCode},
+            </if>
+            <if test="sex != null">
+                sex=#{sex},
+            </if>
+            <if test="age != null">
+                age=#{age},
+            </if>
+            <if test="price != null">
+                price=#{price},
+            </if>
+            <if test="remark != null">
+                remark=#{remark},
+            </if>
+            <if test="attention != null">
+                attention=#{attention},
+            </if>
+            <if test="img != null">
+                img=#{img},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete from t_setmeal where id=#{id}
+    </delete>
+
+    <select id="findById" parameterType="int" resultType="com.javamenc.pojo.Setmeal">
+        select *from t_setmeal where id=#{setmealId}
+    </select>
+
+    <select id="findCheckGroupIdS" parameterType="int" resultType="int">
+        select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{setmealId}
+    </select>
+
+    <insert id="setSetmealAndCheckGroup" parameterType="map">
+        insert into t_setmeal_checkgroup(setmeal_id,checkgroup_id)
+        values
+        (#{setmealId},#{checkGroupId})
+    </insert>
+
+    <select id="selectCountAssociationById" parameterType="int" resultType="int">
+        select Count(*) from t_setmeal_checkgroup where setmeal_id=#{setmealId}
+    </select>
+
+    <delete id="deleteAssociationById" parameterType="int">
+        delete from t_setmeal_checkgroup where setmeal_id=#{setmealId}
+    </delete>
+
+
+    <select id="selectAll" resultType="com.javamenc.pojo.Setmeal">
+        select *from t_setmeal
+    </select>
+
+    <!--查询每个套餐对应的数量(占比数据)-->
+    <select id="findSetmealCount" resultType="map">
+        select  s.name name, count(o.id) value
+        from  t_order o,t_setmeal s
+        where o.setmealId=s.id group by s.name
+    </select>
+
+</mapper>
